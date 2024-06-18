@@ -4,7 +4,7 @@ This repository contains a machine learning pipeline for any ML task, e.g., imag
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Installation/Setup](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
 
@@ -14,6 +14,12 @@ To install the required dependencies, run the following command:
 
 ```bash
 pip install -r environment.yml
+```
+
+To download fashion-mnist data run:
+
+```bash
+make data
 ```
 
 ## Usage

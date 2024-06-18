@@ -42,7 +42,16 @@ def main():
     test_loader = FashionDataLoader(test_set, cfg['trainer']['batch_size'], cfg['trainer']['shuffle'])
     
     # Instantiating the Trainer and Tester
-    trainer = Trainer(train_set, train_loader.load(), val_loader.load(), model, optimizer, device, cfg['trainer']['num_epochs'])
+    trainer = Trainer(
+            train_loader.load(), 
+            val_loader.load(), 
+            model, 
+            optimizer, 
+            device, 
+            cfg['model']['save_dir'],
+            cfg['model']['save_name'],
+            cfg['trainer']['num_epochs']
+        )
     tester = Tester(test_loader.load(), model, device)
     
     # Training the model

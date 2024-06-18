@@ -2,10 +2,11 @@ model:
     name: convnet
     dropout_rate: 0.1
     save_dir: "checkpoints/"
+    save_name: "model"
 
 trainer:
     batch_size: 512
-    num_epochs: 1
+    num_epochs: 10
     shuffle: True
     optim:
         type: Adam
@@ -24,3 +25,5 @@ wandb:
     project: fashion_mnist
     job_type: train
     name: null
+    init_kwargs:
+        mode: disabled #online

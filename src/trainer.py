@@ -6,31 +6,34 @@ from tqdm import tqdm
 class Trainer:
     def __init__(
         self, 
-        train_set, 
         train_loader,
         val_loader, 
         model, 
         optimizer,
         device,
+        save_path,
+        save_name,
         num_epochs
     ):
-        self.train_set = train_set
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.model = model
         self.optimizer = optimizer
         self.device = device
+        self.save_path = save_path
+        self.save_name = save_name
         self.num_epochs = num_epochs
     
     def train(self):
-                
-        # Set the model to training mode
-        self.model.train()
-        
+        best_val_loss = float('inf')
+
         for epoch in range(self.num_epochs):
+            
+            # Set the model to training mode
+            self.model.train()
+        
             running_loss = 0.0
             train_loader_tqdm = tqdm(self.train_loader, desc=f"Epoch {epoch+1}/{self.num_epochs}", leave=True)
-
             for x, y in train_loader_tqdm:
                 x, y = x.to(self.device), y.to(self.device)
                 self.optimizer.zero_grad()
@@ -39,12 +42,18 @@ class Trainer:
                 running_loss += loss.item()
                 loss.backward()
                 self.optimizer.step()
-                
+
                 # Update tqdm with the running loss
                 train_loader_tqdm.set_postfix(loss=loss.item())
-                
+
             val_loss, val_accuracy = self.validate()
             print(f"Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%")
+
+            # Save the model if the validation loss is better
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                torch.save(self.model.state_dict(), f"{self.save_path}{self.save_name}.pt")
+                print(f"Saved model with validation loss {best_val_loss:.4f}")
     
                 
     def validate(self):
@@ -68,9 +77,6 @@ class Trainer:
         
         avg_val_loss = val_loss / len(self.val_loader)
         val_accuracy = 100 * correct / total
-        
-        # Set the model back to training mode
-        self.model.train()
         
         return avg_val_loss, val_accuracy
     
