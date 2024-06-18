@@ -1,3 +1,4 @@
+import os
 import torch
 from torch import nn
 from tqdm import tqdm
@@ -52,6 +53,10 @@ class Trainer:
             # Save the model if the validation loss is better
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
+                
+                # If the save path does not exist, create it
+                os.makedirs(self.save_path, exist_ok=True)
+                
                 torch.save(self.model.state_dict(), f"{self.save_path}{self.save_name}.pt")
                 print(f"Saved model with validation loss {best_val_loss:.4f}")
     
