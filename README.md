@@ -24,12 +24,12 @@ make data
 
 ## Usage
 
-Edit the `configs/main.yaml` with data load path, and desired hyperparameters
-
 To run the model:
 
 ```bash
 Make train
 ```
 
+## Configuration
 
+Edit the `configs/main.yaml` with data load path, and desired hyperparameters
