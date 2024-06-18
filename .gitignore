@@ -1,3 +1,4 @@
-# ignore directories
+# ignore 
+__pycache__*
 checkpoints/
 data/
