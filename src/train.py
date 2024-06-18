@@ -1,10 +1,11 @@
 import torch
 import yaml
+from torch.utils.data import Subset
 
 # Local Imports
-from model.convnet import VGG16
+from model.convnet import VGG11, VGG16, BasicCNN
 from data import FashionDataset, FashionDataLoader
-from trainer import Trainer
+from trainer import Trainer, Tester
 
 def main():
 
@@ -19,21 +20,37 @@ def main():
 
     # Instantiating the Train and Test sets
     train_set = FashionDataset(cfg['data']['train_ft'], cfg['data']['train_tg'])
-    test_set = FashionDataset(cfg['data']['test_ft'], cfg['data']['test_tg'])
 
-    in_channels, out_channels = train_set.get_in_out_size()
+    # Splitting the training set into training and validation sets
+    train_indices = list(range(0, 50000))
+    val_indices = list(range(50000, len(train_set)))
+
+    val_set = Subset(train_set, val_indices)
+    train_set = Subset(train_set, train_indices)
+
+    test_set = FashionDataset(cfg['data']['test_ft'], cfg['data']['test_tg'])
+    
 
     # Instantiating the Model
-    model = VGG16(in_channels, out_channels, cfg['model']['dropout']).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg['model']['lr'])
+    model = BasicCNN(cfg['model']['dropout_rate']).to(device)
     
-    dl = FashionDataLoader(train_set, cfg['trainer']['batch_size'], cfg['trainer']['shuffle'])
+    # Instantiating the Optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg['trainer']['optim']['lr'])
     
-    # Instantiating the Trainer
-    trainer = Trainer(train_set, dl.load(), model, optimizer, device)
+    train_loader = FashionDataLoader(train_set, cfg['trainer']['batch_size'], cfg['trainer']['shuffle'])
+    val_loader = FashionDataLoader(val_set, cfg['trainer']['batch_size'], cfg['trainer']['shuffle'])
+    test_loader = FashionDataLoader(test_set, cfg['trainer']['batch_size'], cfg['trainer']['shuffle'])
+    
+    # Instantiating the Trainer and Tester
+    trainer = Trainer(train_set, train_loader.load(), val_loader.load(), model, optimizer, device, cfg['trainer']['num_epochs'])
+    tester = Tester(test_loader.load(), model, device)
     
     # Training the model
     trainer.train()
+    
+    # Evaluating the models performance
+    print(f"Test Accuracy: {tester.test():.2f}%")
+
     
 
 if __name__=="__main__":

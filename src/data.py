@@ -19,7 +19,7 @@ def read_mnist_images(filename):
         # Read the image data
         images = np.frombuffer(f.read(), dtype=np.uint8).reshape(num_images, num_rows, num_cols)
 
-    return torch.tensor(images)
+    return torch.tensor(images, dtype=torch.float32)
 
 # Read the FashionMNIST labels
 def read_mnist_labels(filename):
@@ -32,7 +32,7 @@ def read_mnist_labels(filename):
         # Read the label data
         labels = np.frombuffer(f.read(), dtype=np.uint8)
     
-    return torch.tensor(labels)
+    return torch.tensor(labels, dtype=torch.long)
 
 # Generic Dataset class
 class GenericDataset(Dataset):
@@ -87,9 +87,7 @@ class FashionDataLoader:
         # Estimate num batches in loader
         return len(self.dataset) // self.batch_size
 
-
     def load(self) -> torch.Tensor:
-        breakpoint()
         dl = DataLoader(
                 self.dataset, batch_size=self.batch_size, shuffle=self.shuffle
                 )
